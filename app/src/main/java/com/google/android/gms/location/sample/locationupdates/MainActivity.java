@@ -197,25 +197,36 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param savedInstanceState The activity state saved in the Bundle.
      */
+    //Part 1 compactar codi
+    private boolean checkContains(String request, Bundle savedInstanceState){
+        boolean ret = false;
+
+        if(savedInstanceState.keySet().contains(request)){
+            ret = true;
+        }
+
+        return ret;
+    }
+
     private void updateValuesFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
             // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
-            if (savedInstanceState.keySet().contains(KEY_REQUESTING_LOCATION_UPDATES)) {
+            if (checkContains(KEY_REQUESTING_LOCATION_UPDATES,savedInstanceState)) {
                 mRequestingLocationUpdates = savedInstanceState.getBoolean(
                         KEY_REQUESTING_LOCATION_UPDATES);
             }
 
             // Update the value of mCurrentLocation from the Bundle and update the UI to show the
             // correct latitude and longitude.
-            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
+            if (checkContains(KEY_LOCATION,savedInstanceState)) {
                 // Since KEY_LOCATION was found in the Bundle, we can be sure that mCurrentLocation
                 // is not null.
                 mCurrentLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             }
 
             // Update the value of mLastUpdateTime from the Bundle and update the UI.
-            if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
+            if (checkContains(KEY_LAST_UPDATED_TIME_STRING,savedInstanceState)) {
                 mLastUpdateTime = savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING);
             }
             updateUI();
@@ -280,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             case REQUEST_CHECK_SETTINGS:
@@ -486,6 +498,13 @@ public class MainActivity extends AppCompatActivity {
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
+    //Part 1 Compactar codi
+    private void setPermissionsToActivityCompat(){
+
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -500,9 +519,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
                             // Request permission
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
+                            setPermissionsToActivityCompat();
                         }
                     });
         } else {
@@ -510,9 +527,7 @@ public class MainActivity extends AppCompatActivity {
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
+            setPermissionsToActivityCompat();
         }
     }
 
