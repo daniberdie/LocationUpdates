@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
         // LocationSettingsRequest objects.
         createLocationCallback();
         createLocationRequest();
-        buildLocationSettingsRequest();
+        //buildLocationSettingsRequest();
     }
 
     /**
@@ -336,8 +336,27 @@ public class MainActivity extends AppCompatActivity {
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
      * runtime permission has been granted.
      */
+
+    //Encapsulate Location Permission Request
+    private void startLocationPermissionRequest(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
     private void startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
+
+        //Part 1 Encapsule start location updates
+        if(ActivityCompat.checkSelfPermission(getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+        }
+
+        updateUI();
+        /*
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
@@ -378,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
 
                         updateUI();
                     }
-                });
+                });*/
     }
 
     /**
@@ -431,14 +450,18 @@ public class MainActivity extends AppCompatActivity {
         // It is a good practice to remove location requests when the activity is in a paused or
         // stopped state. Doing so helps battery performance and is especially
         // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        //Part 1
+        mRequestingLocationUpdates = false;
+        setButtonsEnabledState();
+                /*
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         mRequestingLocationUpdates = false;
                         setButtonsEnabledState();
                     }
-                });
+                });*/
     }
 
     @Override
@@ -499,16 +522,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Part 1 Compactar codi
-    private void setPermissionsToActivityCompat(){
 
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                REQUEST_PERMISSIONS_REQUEST_CODE);
-    }
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);
+                        Manifest.permission.ACCESS_COARSE_LOCATION);
 
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
@@ -519,7 +537,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View view) {
                             // Request permission
-                            setPermissionsToActivityCompat();
+                            startLocationPermissionRequest();
+                            //setPermissionsToActivityCompat();
                         }
                     });
         } else {
@@ -527,7 +546,8 @@ public class MainActivity extends AppCompatActivity {
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
-            setPermissionsToActivityCompat();
+            startLocationPermissionRequest();
+            //setPermissionsToActivityCompat();
         }
     }
 
